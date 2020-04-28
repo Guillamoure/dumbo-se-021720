@@ -10,7 +10,8 @@ class App extends React.Component {
 
   state = {
     planeteers: [],
-    searchBar: ""
+    searchBar: "",
+    checkbox: false
   }
 
   componentDidMount(){
@@ -23,15 +24,29 @@ class App extends React.Component {
       })
   }
 
-  renderChange = (value) => {
-    this.setState({searchBar: value})
+  renderChange = (event) => {
+    this.setState({[event.target.name]: event.target.value})
   }
 
-  filterPlaneteers = () => {
-    return this.state.planeteers.filter(planeteer => {
+  renderCheckbox = (event) => {
+    this.setState({checkbox: event.target.checked})
+  }
+
+  renderPlaneteers = () => {
+    // filter
+    let filteredPlaneteers = this.state.planeteers.filter(planeteer => {
       let allText = (planeteer.name + " " + planeteer.bio).toLowerCase()
       return allText.includes(this.state.searchBar.toLowerCase())
     })
+
+    // sort
+    if (this.state.checkbox){
+      return filteredPlaneteers.sort((p1, p2) => {
+        return p2.born - p1.born
+      })
+    } else {
+      return filteredPlaneteers
+    }
   }
 
   updatePlaneteersList = (planeteer) => {
@@ -40,16 +55,17 @@ class App extends React.Component {
     // adding planeteer
     // planeteers.push(planeteer)
     // set state
-    this.setState({planeteers: planeteers})
+    this.setState({planeteers})
   }
 
   render(){
+    console.log("checkbox", this.state.checkbox)
     return (
       <div>
         <Header />
-        <SearchBar searchBar={this.state.searchBar} renderChange={this.renderChange}/>
+        <SearchBar searchBar={this.state.searchBar} renderChange={this.renderChange} renderCheckbox={this.renderCheckbox}/>
         <RandomButton updatePlaneteersList={this.updatePlaneteersList}/>
-        <PlaneteersContainer planeteers={this.filterPlaneteers()}/>
+        <PlaneteersContainer planeteers={this.renderPlaneteers()}/>
       </div>
     );
   }
